@@ -1,31 +1,36 @@
-import { StyleSheet } from 'react-native';
+import { View, Text } from "react-native";
+import React, { useMemo, useState } from "react";
+import { Link, Stack } from "expo-router";
+import ExploreHeader from "@/components/ExploreHeader";
+import Listings from "@/components/Listings";
+import listingData from "@/assets/data/airbnb-listings.json";
+import ListingMap from "@/components/ListingMap";
+import listingDataGeo from "@/assets/data/airbnb-listings.geo.json";
+import ListingBottomSheet from "@/components/ListingBottomSheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ListingItemCard from "@/components/ListingItemCard";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+const Page = () => {
+  const [category, setCategory] = useState("Tiny homes");
+  const items = useMemo(() => listingData as any, []);
+  const geoItems = useMemo(() => listingDataGeo as any, []);
 
-export default function TabOneScreen() {
+  const onDataChanged = (category: string) => {
+    console.log("CHANGED_", category);
+    setCategory(category);
+  };
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
-    </View>
-  );
-}
+    <GestureHandlerRootView style={{ flex: 1, marginTop: 70 }}>
+      <Stack.Screen
+        options={{
+          header: () => <ExploreHeader onCategoryChanged={onDataChanged} />,
+        }}
+      />
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
+      <ListingMap listings={geoItems} />
+      <ListingBottomSheet listings={items} category={category} />
+    </GestureHandlerRootView>
+  );
+};
+
+export default Page;
